@@ -36,7 +36,7 @@ spec:
             - secret
             - generic
             - clouddns-dns01-solver-svc-acct
-            - --from-file=/var/run/vault
+            - --from-file=monsecret=/var/run/vault
             - -n
             - traefik-public
           imagePullPolicy: IfNotPresent
@@ -57,7 +57,7 @@ spec:
             - manawa-gke
             - -secrets
             # full path of secret you want to access with secret/data/* prefix
-            - secret/data/cluster-xavier
+            - secret/data/cluster-xavier#key
             - -out
             # the path where secrets are stored
             - /var/run/vault
