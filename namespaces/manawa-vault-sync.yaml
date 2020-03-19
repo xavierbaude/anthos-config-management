@@ -7,7 +7,6 @@ metadata:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  annotations:
   labels:
     app: vault-sync
   name: vault-sync
