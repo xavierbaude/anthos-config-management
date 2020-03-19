@@ -1,0 +1,337 @@
+---
+# Source: traefik public/templates/configmap.yaml
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: traefik-config-public
+  namespace: traefik-public
+data:
+  traefik.yaml: |
+    global:
+      checkNewVersion: true
+      sendAnonymousUsage: true
+    entryPoints:
+      web:
+        address: ":80"
+      websecure:
+        address: ":443"
+    providers:
+      kubernetesIngress:
+        IngressClass: traefik-public
+      kubernetesCRD:
+        IngressClass: traefik-public
+      file:
+        watch: true
+        directory: /etc/traefik/config-dyn/
+    certificatesResolvers:
+      letsencrypt:
+        acme:
+          email: noreply@gmail.com
+          storage: /tls/acme.json
+          dnsChallenge:
+            provider: gcloud
+            delayBeforeCheck: 0
+            resolvers:
+              - 1.1.1.1:53
+              - 8.8.8.8:53
+
+    api:
+      insecure: true
+      dashboard: true
+      debug: true
+    metrics:
+      prometheus: {}
+    accessLog: {}
+---
+# Source: traefik public/templates/manawa.yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: traefik-certificates-public
+  namespace: traefik-public
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Gi
+  storageClassName: standard
+---
+# Source: traefik public/templates/manawa.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: traefik-ingress-controller-public
+  namespace: traefik-public
+---
+# Source: traefik public/templates/crd.yaml
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  name: tlsoptions.traefik.containo.us
+spec:
+  group: traefik.containo.us
+  version: v1alpha1
+  names:
+    kind: TLSOption
+    plural: tlsoptions
+    singular: tlsoption
+  scope: Namespaced
+---
+# Source: traefik public/templates/crd.yaml
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  name: traefikservices.traefik.containo.us
+
+spec:
+  group: traefik.containo.us
+  version: v1alpha1
+  names:
+    kind: TraefikService
+    plural: traefikservices
+    singular: traefikservice
+  scope: Namespaced
+---
+# Source: traefik public/templates/crd.yaml
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  name: ingressroutes.traefik.containo.us
+spec:
+  group: traefik.containo.us
+  version: v1alpha1
+  names:
+    kind: IngressRoute
+    plural: ingressroutes
+    singular: ingressroute
+  scope: Namespaced
+---
+# Source: traefik public/templates/crd.yaml
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  name: ingressroutetcps.traefik.containo.us
+spec:
+  group: traefik.containo.us
+  version: v1alpha1
+  names:
+    kind: IngressRouteTCP
+    plural: ingressroutetcps
+    singular: ingressroutetcp
+  scope: Namespaced
+---
+# Source: traefik public/templates/crd.yaml
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  name: middlewares.traefik.containo.us
+spec:
+  group: traefik.containo.us
+  version: v1alpha1
+  names:
+    kind: Middleware
+    plural: middlewares
+    singular: middleware
+  scope: Namespaced
+---
+# Source: traefik public/templates/clusterrole.yaml
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: traefik-ingress-controller
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - services
+      - endpoints
+      - secrets
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - extensions
+    resources:
+      - ingresses
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - extensions
+    resources:
+      - ingresses/status
+    verbs:
+      - update
+  - apiGroups:
+      - traefik.containo.us
+    resources:
+      - middlewares
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - traefik.containo.us
+    resources:
+      - ingressroutes
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - traefik.containo.us
+    resources:
+      - ingressroutetcps
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - traefik.containo.us
+    resources:
+      - tlsoptions
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - traefik.containo.us
+    resources:
+      - traefikservices
+    verbs:
+      - get
+      - list
+      - watch
+---
+# Source: traefik public/templates/manawa.yaml
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: traefik-ingress-controller-public
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: traefik-ingress-controller
+subjects:
+  - kind: ServiceAccount
+    name: traefik-ingress-controller-public
+    namespace: traefik-public
+---
+# Source: traefik public/templates/manawa.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: traefik-public
+  namespace: traefik-public
+spec:
+  type: LoadBalancer
+  ports:
+    - protocol: TCP
+      name: web
+      port: 80
+    - protocol: TCP
+      name: websecure
+      port: 443
+  selector:
+    app: traefik-public
+---
+# Source: traefik public/templates/manawa.yaml
+#This service is Internal. This annoation is available for GKE
+apiVersion: v1
+kind: Service
+metadata:
+  name: traefik-dashboard-public
+  namespace: traefik-public
+  annotations:
+    cloud.google.com/load-balancer-type: "Internal"
+    networking.gke.io/internal-load-balancer-allow-global-access: "true"
+spec:
+  type: LoadBalancer
+  ports:
+    - protocol: TCP
+      name: admin
+      port: 8080
+  selector:
+    app: traefik-public
+---
+# Source: traefik public/templates/manawa.yaml
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: traefik-pubic
+  namespace: traefik-public
+  labels:
+    app: traefik-public
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: traefik-public
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 25%
+      maxSurge: 1
+  template:
+    metadata:
+      labels:
+        app: traefik-public
+    spec:
+      #we make affinity for PVC. it is not totaly HA.
+      affinity:
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                      - traefik-public
+              topologyKey: kubernetes.io/hostname
+      serviceAccountName: traefik-ingress-controller-public
+      containers:
+        - name: traefik-public
+          env:
+            - name: GCE_SERVICE_ACCOUNT_FILE
+              value: "/tmp/secret-volume/key.json"
+          image: traefik:v2.1
+          args:
+            - --configfile=/etc/traefik/config/traefik.yaml
+          ports:
+            - name: web
+              containerPort: 80
+            - name: websecure
+              containerPort: 443
+            - name: admin
+              containerPort: 8080
+          volumeMounts:
+            - mountPath: /tls
+              name: tls-volume
+            - mountPath: "/etc/traefik/config"
+              name: config
+            - mountPath: "/etc/traefik/config-dyn"
+              name: dyn-config
+            - mountPath: "/tmp/secret-volume"
+              name: gcloud-dns
+          readinessProbe:
+            tcpSocket:
+              port: 80
+          livenessProbe:
+            tcpSocket:
+              port: 80
+      volumes:
+        - name: tls-volume
+          persistentVolumeClaim:
+            claimName: traefik-certificates-public
+        - name: config
+          configMap:
+            name: traefik-config-public
+        - name: dyn-config
+          configMap:
+            name: traefik-config-public-dynamic
+        - name: gcloud-dns
+          secret:
+            secretName: clouddns-dns01-solver-svc-acct
