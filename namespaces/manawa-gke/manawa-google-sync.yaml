@@ -51,11 +51,13 @@ spec:
       initContainers:
         - image: google/cloud-sdk
           args:
+            - gcloud
+            - beta
             - secrets
             - versions
             - access
-            - version-id
-            - --secret="secret-id"
+            - 1
+            - --secret="mon-secret-1"
             - >
             - /var/run/vault
           imagePullPolicy: IfNotPresent
