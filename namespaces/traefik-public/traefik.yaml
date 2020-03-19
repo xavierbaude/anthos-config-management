@@ -1,4 +1,9 @@
 ---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: traefik-public
+---
 # Source: traefik public/templates/configmap.yaml
 kind: ConfigMap
 apiVersion: v1
