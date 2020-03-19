@@ -56,7 +56,7 @@ spec:
             - secrets
             - versions
             - access
-            - 1
+            - "1"
             - --secret="mon-secret-1"
             - >
             - /var/run/vault
