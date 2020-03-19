@@ -58,7 +58,7 @@ spec:
             - access
             - "1"
             - --secret="mon-secret-1"
-            - >
+            - ">"
             - /var/run/vault
           imagePullPolicy: IfNotPresent
           name: gcloud
