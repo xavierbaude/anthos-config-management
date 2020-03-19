@@ -48,7 +48,7 @@ spec:
         - args:
             - -kubeAuthRole
             # name of the "Module name" in Vault Editor (see step 2)
-            - traefik
+            - manawa-gke
             - -secrets
             # full path of secret you want to access with secret/data/* prefix
             - secret/data/cluster-xavier
