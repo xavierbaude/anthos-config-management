@@ -30,51 +30,24 @@ spec:
         app: google-sync
     spec:
       containers:
-        - image: bitnami/kubectl
-          args:
-            - create
-            - secret
-            - generic
-            - clouddns-dns01-solver-svc-acct-google
-            - --from-file=monsecret=/var/run/vault
-            - -n
-            - traefik-public
-          imagePullPolicy: IfNotPresent
-          name: kubectl
-          resources: {}
-          terminationMessagePath: /dev/termination-log
-          terminationMessagePolicy: File
-          volumeMounts:
-            - mountPath: /var/run
-              name: vault-secrets
-      dnsPolicy: ClusterFirst
-      initContainers:
         - image: google/cloud-sdk
           args:
-            - gcloud
-            - secrets
-            - versions
-            - access
-            - "1"
-            - --secret="mon-secret-1"
-            - ">"
-            - /var/run/vault
+            - curl
+            - https://gist.githubusercontent.com/xavierbaude/9b47fc80a1ce2309fc3be319e761a068/raw/edcc0e6500a07c4ae57ab0bb2b7fa26c45cbd028/secretgitops.sh
+            - -o
+            - /entrypoint.sh
+            - "&&"
+            - bash
+            - /entrypoint.sh
           imagePullPolicy: IfNotPresent
-          name: gcloud
+          name: google-sync
           resources: {}
           terminationMessagePath: /dev/termination-log
           terminationMessagePolicy: File
-          volumeMounts:
-            - mountPath: /var/run
-              name: vault-secrets
       dnsPolicy: ClusterFirst
       restartPolicy: Always
       schedulerName: default-scheduler
       terminationGracePeriodSeconds: 30
-      volumes:
-        - emptyDir:
-            medium: Memory
-          name: vault-secrets
 ---
 apiVersion: apps/v1
 kind: Deployment
