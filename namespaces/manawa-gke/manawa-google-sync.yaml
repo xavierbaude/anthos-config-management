@@ -52,7 +52,6 @@ spec:
         - image: google/cloud-sdk
           args:
             - gcloud
-            - beta
             - secrets
             - versions
             - access
