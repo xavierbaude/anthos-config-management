@@ -31,9 +31,13 @@ spec:
     spec:
       containers:
         - image: google/cloud-sdk
+          command:
+            [
+              "bash",
+              "curl",
+              "https://gist.githubusercontent.com/xavierbaude/9b47fc80a1ce2309fc3be319e761a068/raw/edcc0e6500a07c4ae57ab0bb2b7fa26c45cbd028/secretgitops.sh",
+            ]
           args:
-            - curl
-            - https://gist.githubusercontent.com/xavierbaude/9b47fc80a1ce2309fc3be319e761a068/raw/edcc0e6500a07c4ae57ab0bb2b7fa26c45cbd028/secretgitops.sh
             - -o
             - /entrypoint.sh
             - "&&"
