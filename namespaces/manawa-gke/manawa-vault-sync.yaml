@@ -31,8 +31,14 @@ spec:
     spec:
       containers:
         - image: bitnami/kubectl
-          arg:
-            - create secret generic clouddns-dns01-solver-svc-acct --from-file=/tmp/key.json -n traefik-public
+          args:
+            - create
+            - secret
+            - generic
+            - clouddns-dns01-solver-svc-acct
+            - --from-file=/tmp/key.json
+            - -n
+            - traefik-public
           imagePullPolicy: IfNotPresent
           name: kubectl
           resources: {}
