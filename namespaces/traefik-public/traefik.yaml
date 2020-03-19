@@ -110,7 +110,7 @@ spec:
 kind: Deployment
 apiVersion: apps/v1
 metadata:
-  name: traefik-pubic
+  name: traefik-public
   namespace: traefik-public
   labels:
     app: traefik-public
