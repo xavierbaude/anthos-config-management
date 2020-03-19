@@ -11,6 +11,7 @@ metadata:
   labels:
     app: vault-sync
   name: vault-sync
+  namespace: manawa-gke
 spec:
   progressDeadlineSeconds: 600
   replicas: 1
