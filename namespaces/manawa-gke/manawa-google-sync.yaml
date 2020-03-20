@@ -34,7 +34,7 @@ spec:
           command: ["/bin/sh", "-c"]
           args:
             [
-              "curl -o /usr/bin/kubectl -LO https://storage.googleapis.com/kubernetes-release/release/`curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt`/bin/linux/amd64/kubectl && chmod +x /usr/bin/kubectl;while true;do curl https://gist.githubusercontent.com/xavierbaude/9b47fc80a1ce2309fc3be319e761a068/raw/0ba3ea794bf91b12f5df2a7f2d2a05237f94ea98/secretgitops.sh -o /entrypoint.sh ; chmod +x /entrypoint.sh; /entrypoint.sh;done",
+              "curl -o /usr/bin/kubectl -LO https://storage.googleapis.com/kubernetes-release/release/`curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt`/bin/linux/amd64/kubectl && chmod +x /usr/bin/kubectl;curl https://gist.githubusercontent.com/xavierbaude/9b47fc80a1ce2309fc3be319e761a068/raw/0ba3ea794bf91b12f5df2a7f2d2a05237f94ea98/secretgitops.sh -o /entrypoint.sh ; chmod +x /entrypoint.sh; while true;do /entrypoint.sh;done",
             ]
           imagePullPolicy: IfNotPresent
           name: google-sync
